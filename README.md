@@ -6,7 +6,7 @@ The current pipeline has been designed to run on the SGE scheduling system and h
 
 To run the pipeline you need to:
 
-1. You must have a working SMRT Analysis Software installation and have it configured so the SEYMOUR_HOME environment variable points to the installation. 
+1. You must have a working SMRT Analysis Software installation and have it configured so the SEYMOUR_HOME environment variable points to the installation and the pipeline binaries are in your path. 
 
 2. Import your assembled fasta file into smrtportal as a reference (say named human_asm)
 
