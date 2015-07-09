@@ -15,7 +15,7 @@ To run the pipeline you need to:
 3. run the pipeline specifying the input file, the path to the reference, and a prefix for the outputs:
 
 ```
-sh quiver.sh input.fofn trio3 /path/to/smrtanalysis/userdata/references/GIAB_Trio_003
+sh quiver.sh input.fofn trio3 /path/to/smrtanalysis/userdata/references/human_asm
 ```
 
 The pipeline is very rough and has undergone limited testing so user beware.
