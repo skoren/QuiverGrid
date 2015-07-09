@@ -19,3 +19,11 @@ sh quiver.sh input.fofn trio3 /path/to/smrtanalysis/userdata/references/human_as
 ```
 
 The pipeline is very rough and has undergone limited testing so user beware.
+
+######CITE
+If you find this pipeline useful, please cite the original Quiver paper:<br>
+Chin et. al. [Nonhybrid, finished microbial genome assemblies from long-read SMRT sequencing data.](http://www.nature.com/nmeth/journal/v10/n6/full/nmeth.2474.html) Nature Methods, 2013
+
+and the MHAP paper:<br>
+Berlin et. al. [Assembling large genomes with single-molecule sequencing and locality-sensitive hashing.](http://www.nature.com/nbt/journal/v33/n6/full/nbt.3238.html) Nature Biotechnology, 2015
+
