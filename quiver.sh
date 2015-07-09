@@ -70,7 +70,7 @@ unset IFS
 set +f
 
 > $PREFIX.bax.fofn
-for input in `cat input.fofn |awk '{print $1}'`; do
+for input in `cat $FOFN |awk '{print $1}'`; do
    `find $input*.bax.h5 >> $PREFIX.bax.fofn`
 done
 
@@ -93,7 +93,7 @@ if [ $USEGRID -eq 1 ]; then
    else
       qsub -pe threads 15 -l mem=2GB -t 1-$NUM_JOBS -cwd -N "${PREFIX}align" -j y -o `pwd`/\$TASK_ID.out $SCRIPT_PATH/filterAndAlign.sh
    fi
-   qsub -pe threads 1 -l mem=5GB -hold_jid "${PREFIX}align" -t 1-$NUM_JOBS -cwd -N "${PREFIX}split" -j y -o `pwd`/\$TASK_ID.out $SCRIPT_PATH/splitByContig.sh
+   qsub -pe threads 1 -l mem=5GB -hold_jid "${PREFIX}align" -t 1-$NUM_JOBS -cwd -N "${PREFIX}split" -j y -o `pwd`/\$TASK_ID.split.out $SCRIPT_PATH/splitByContig.sh
    qsub -pe threads 15 -l mem=2GB -t 1-$NUM_JOBS -hold_jid "${PREFIX}split" -cwd -N "${PREFIX}cns" -j y -o `pwd`/\$TASK_ID.cns.out $SCRIPT_PATH/consensus.sh
 else
    for i in `seq 1 $NUM_JOBS`; do
