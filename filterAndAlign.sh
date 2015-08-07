@@ -40,7 +40,6 @@
 ######################################################################
 
 SCRIPT_PATH=`cat scripts`
-SCRIPT_PATH=`dirname $SCRIPT_PATH`
 
 source ~/.bashrc
 LD_ADDITION=`cat ${SCRIPT_PATH}/CONFIG |grep -v "#" |grep LD_LIBRARY_PATH |wc -l`
