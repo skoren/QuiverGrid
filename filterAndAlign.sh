@@ -97,4 +97,6 @@ if [ ! -e $prefix.$jobid.cmp.h5 ]; then
    pbalign `pwd`/$prefix.$jobid.fofn "$reference" `pwd`/$prefix.$jobid.cmp.h5 --seed=1 --minAccuracy=0.75 --minLength=50 --concordant --algorithmOptions="-useQuality" --algorithmOptions=' -minMatch 12 -bestn 10 -minPctIdentity 70.0' --hitPolicy=randombest --tmpDir=`pwd`/tmpdir --nproc=15 --regionTable=`pwd`/$prefix.filtered.$jobid.fofn
    loadPulses `pwd`/$prefix.$jobid.fofn `pwd`/$prefix.$jobid.cmp.h5 -metrics DeletionQV,IPD,InsertionQV,PulseWidth,QualityValue,MergeQV,SubstitutionQV,DeletionTag -byread 
 fi
-echo "Done"
+count=`h5ls $prefix.$jobid.cmp.h5 |grep AlnInfo |wc -l`
+ref=`h5ls -rf $prefix.$jobid.cmp.h5 |head -n 50 |grep FullName`
+echo "Done $prefix.$jobid.cmph5. It has $count alignments aligned to reference $ref"
