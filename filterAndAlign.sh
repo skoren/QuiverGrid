@@ -103,5 +103,7 @@ echo "Done $prefix.$jobid.cmp.h5. It has $count alignments aligned to reference 
 
 if [ $count -eq 0 ]; then
    rm $prefix.$jobid.cmp.h5
+   rm $prefix.$jobid.fofn
+
    echo "Error: job $jobid failed, no alignments generated, please check the error log and try again"
 fi
