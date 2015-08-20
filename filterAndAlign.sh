@@ -99,4 +99,9 @@ if [ ! -e $prefix.$jobid.cmp.h5 ]; then
 fi
 count=`h5ls $prefix.$jobid.cmp.h5 |grep AlnInfo |wc -l`
 ref=`h5ls -rf $prefix.$jobid.cmp.h5 |head -n 50 |grep FullName`
-echo "Done $prefix.$jobid.cmph5. It has $count alignments aligned to reference $ref"
+echo "Done $prefix.$jobid.cmp.h5. It has $count alignments aligned to reference $ref"
+
+if [ $count -eq 0 ]; then
+   rm $prefix.$jobid.cmp.h5
+   echo "Error: job $jobid failed, no alignments generated, please check the error log and try again"
+fi
