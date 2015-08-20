@@ -83,7 +83,7 @@ rm -rf filtered
 
 if [ -e "$prefix.$jobid.cmp.h5" ]; then
    if [ -e "$prefix.$jobid.contig_ids" ]; then
-      cmph5tools.py merge --outFile=$prefix.$jobid.byContig.cmp.h5 -W $prefix.$jobid.contig_ids $prefix.cmph5.fofn
+      cmph5tools.py -vv merge --outFile=$prefix.$jobid.byContig.cmp.h5 -W $prefix.$jobid.contig_ids $prefix.cmph5.fofn
       cmph5tools.py -vv sort --deep --inPlace $prefix.$jobid.byContig.cmp.h5
       loadChemistry.py `pwd`/$prefix.bax.fofn $prefix.$jobid.byContig.cmp.h5
    fi
