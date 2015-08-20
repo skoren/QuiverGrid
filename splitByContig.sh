@@ -83,7 +83,7 @@ rm -rf filtered
 
 DOEXIT=0
 for i in `seq 1 $NUM_JOBS`; do
-   if [ ! -e "$prefix.$i.cmp.h5" ]; then
+   if [ ! -s "$prefix.$i.cmp.h5" ]; then
       echo "Error while running split $jobid. The file $prefix.$i.cmp.h5 is missing, cannot continue!"
       DOEXIT=1
    fi
