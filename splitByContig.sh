@@ -86,6 +86,12 @@ for i in `seq 1 $NUM_JOBS`; do
    if [ ! -s "$prefix.$i.cmp.h5" ]; then
       echo "Error while running split $jobid. The file $prefix.$i.cmp.h5 is missing, cannot continue!"
       DOEXIT=1
+   else
+      count=`h5ls $prefix.$i.cmp.h5 |grep AlnInfo |wc -l`
+      if [ $count -lt 1 ]; then
+         echo "Error while runnning split job $jobid. The file $prefix.$i.cmp.h5 is missing alignments, cannot continue!"
+         DOEXIT=1
+      fi
    fi
 done
 if [ $DOEXIT -eq 1 ]; then
