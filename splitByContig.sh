@@ -81,6 +81,18 @@ rm -f $prefix.filtered.$jobid*
 rm -rf tmpdir
 rm -rf filtered
 
+DOEXIT=0
+for i in `seq 1 $NUM_JOBS`; do
+   if [ ! -e "$prefix.$jobid.cmp.h5" ]; then
+      echo "Error while running split $jobid. The file $prefix.$jobid.cmp.h5 is missing, cannot continue!"
+      DOEXIT=1
+   fi
+done
+if [ $DOEXIT -eq 1 ]; then
+   echo "Error: at least one cmp.h5 file was missing, see above output for details. Cannot continue!"
+   exit
+fi
+
 if [ -e "$prefix.$jobid.cmp.h5" ]; then
    if [ -e "$prefix.$jobid.contig_ids" ]; then
       cmph5tools.py -vv merge --outFile=$prefix.$jobid.byContig.cmp.h5 -W $prefix.$jobid.contig_ids $prefix.cmph5.fofn
