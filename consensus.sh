@@ -105,7 +105,7 @@ else
       fi
 
       rm -f $prefix.$jobid.cmp.h5
-      variantCaller.py --skipUnrecognizedContigs -W $prefix.$jobid.contig_ids  $DIPLOID -x 5 -q 40 -P$VARIANTPARAMS -v -j15 --algorithm=quiver $prefix.$jobid.byContig.cmp.h5 -r $asm -o $prefix.$jobid.gff -o $prefix.$jobid.fastq -o $prefix.$jobid.fasta
+      variantCaller.py --skipUnrecognizedContigs -W $prefix.$jobid.contig_ids  $DIPLOID -x 5 -q 40 -P$VARIANTPARAMS -v -j8 --algorithm=quiver $prefix.$jobid.byContig.cmp.h5 -r $asm -o $prefix.$jobid.gff -o $prefix.$jobid.fastq -o $prefix.$jobid.fasta
 
       if [ -e "$prefix.$jobid.fasta" ]; then
          numExpected=`cat $prefix.$jobid.contig_ids |wc -l |awk '{print $1}'`

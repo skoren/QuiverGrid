@@ -85,16 +85,24 @@ echo "$REFERENCE" > reference
 echo "$SCRIPT_PATH" > scripts
 echo "$SEYMOUR_HOME/$VARIANTPARAMS" > smrtparams
 
+
+if [ $# -ge 5 ]; then
+   fileName=`readlink -e $5` 
+   echo ",ReadWhitelist=$fileName" > whitelist
+else
+   echo "" > whitelist
+fi
+
 echo "Running with $PREFIX $REFERENCE $HOLD_ID"
 USEGRID=`cat ${SCRIPT_PATH}/CONFIG |grep -v "#" |grep USEGRID |awk '{print $NF}'`
 if [ $USEGRID -eq 1 ]; then
-   if [ $# -ge 4 ]; then
-      qsub -pe threads 15 -l mem=2GB -t 1-$NUM_JOBS -hold_jid $4 -cwd -N "${PREFIX}align" -j y -o `pwd`/\$TASK_ID.out $SCRIPT_PATH/filterAndAlign.sh
+   if [ $# -ge 4 ] && [ x$4 != "x" ]; then
+      qsub -V -pe make-dedicated 8 -l mem_free=4G -t 1-$NUM_JOBS -hold_jid $4 -cwd -N "${PREFIX}align" -j y -o `pwd`/\$TASK_ID.out $SCRIPT_PATH/filterAndAlign.sh
    else
-      qsub -pe threads 15 -l mem=2GB -t 1-$NUM_JOBS -cwd -N "${PREFIX}align" -j y -o `pwd`/\$TASK_ID.out $SCRIPT_PATH/filterAndAlign.sh
+      qsub -V -pe make-dedicated 8 -l mem_free=4G -t 1-$NUM_JOBS -cwd -N "${PREFIX}align" -j y -o `pwd`/\$TASK_ID.out $SCRIPT_PATH/filterAndAlign.sh
    fi
-   qsub -pe threads 1 -l mem=5GB -hold_jid "${PREFIX}align" -t 1-$NUM_JOBS -cwd -N "${PREFIX}split" -j y -o `pwd`/\$TASK_ID.split.out $SCRIPT_PATH/splitByContig.sh
-   qsub -pe threads 15 -l mem=2GB -t 1-$NUM_JOBS -hold_jid "${PREFIX}split" -cwd -N "${PREFIX}cns" -j y -o `pwd`/\$TASK_ID.cns.out $SCRIPT_PATH/consensus.sh
+   qsub -V -pe make-dedicated 1 -l mem_free=5G -hold_jid "${PREFIX}align" -t 1-$NUM_JOBS -cwd -N "${PREFIX}split" -j y -o `pwd`/\$TASK_ID.split.out $SCRIPT_PATH/splitByContig.sh
+   qsub -V -pe make-dedicated 8 -l mem_free=4G -t 1-$NUM_JOBS -hold_jid "${PREFIX}split" -cwd -N "${PREFIX}cns" -j y -o `pwd`/\$TASK_ID.cns.out $SCRIPT_PATH/consensus.sh
 else
    for i in `seq 1 $NUM_JOBS`; do
       sh $SCRIPT_PATH/filterAndAlign.sh $i

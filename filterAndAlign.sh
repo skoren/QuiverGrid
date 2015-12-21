@@ -73,10 +73,11 @@ fi
 line=`cat input.fofn |head -n $jobid |tail -n 1`
 prefix=`cat prefix`
 reference=`cat reference`
+whitelist=`cat whitelist`
 fofn=`echo $line |awk '{print $1}'`
 `find $fofn*.bax.h5 > $prefix.$jobid.fofn`
 
-echo "Mapping $prefix $fofn to $reference"
+echo "Mapping $prefix $fofn to $reference whitelist is $whitelist"
 if [ -e $prefix.$jobid.byCtg ]; then
    echo "Already done"
    exit
@@ -91,10 +92,13 @@ echo "$prefix.$jobid.fofn"
 if [ ! -e $prefix.filtered.$jobid.fofn ]; then
    mkdir -p `pwd`/filtered
    mkdir -p `pwd`/tmpdir
-   filter_plsh5.py --debug --filter='MinReadScore=0.8000,MinSRL=500,MinRL=100' --trim='True' --outputDir=`pwd`/filtered --outputSummary=`pwd`/$prefix.filtered.$jobid.csv --outputFofn=`pwd`/$prefix.filtered.$jobid.fofn `pwd`/$prefix.$jobid.fofn 
+   filterOptions=`echo "MinReadScore=0.8000,MinSRL=500,MinRL=100${whitelist}"`
+   echo "Running filter with $filterOptions"
+
+   filter_plsh5.py --debug --filter=$filterOptions  --trim='True' --outputDir=`pwd`/filtered --outputSummary=`pwd`/$prefix.filtered.$jobid.csv --outputFofn=`pwd`/$prefix.filtered.$jobid.fofn `pwd`/$prefix.$jobid.fofn
 fi
 if [ ! -e $prefix.$jobid.cmp.h5 ]; then
-   pbalign `pwd`/$prefix.$jobid.fofn "$reference" `pwd`/$prefix.$jobid.cmp.h5 --seed=1 --minAccuracy=0.75 --minLength=50 --concordant --algorithmOptions="-useQuality" --algorithmOptions=' -minMatch 12 -bestn 10 -minPctIdentity 70.0' --hitPolicy=randombest --tmpDir=`pwd`/tmpdir --nproc=15 --regionTable=`pwd`/$prefix.filtered.$jobid.fofn
+   pbalign `pwd`/$prefix.$jobid.fofn "$reference" `pwd`/$prefix.$jobid.cmp.h5 --seed=1 --minAccuracy=0.75 --minLength=50 --concordant --algorithmOptions="-useQuality" --algorithmOptions=' -minMatch 12 -bestn 10 -minPctIdentity 70.0' --hitPolicy=randombest --tmpDir=`pwd`/tmpdir --nproc=8 --regionTable=`pwd`/$prefix.filtered.$jobid.fofn
    loadPulses `pwd`/$prefix.$jobid.fofn `pwd`/$prefix.$jobid.cmp.h5 -metrics DeletionQV,IPD,InsertionQV,PulseWidth,QualityValue,MergeQV,SubstitutionQV,DeletionTag -byread 
 fi
 count=`h5ls $prefix.$jobid.cmp.h5 |grep AlnInfo |wc -l`
