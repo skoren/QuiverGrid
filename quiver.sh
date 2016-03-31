@@ -97,18 +97,22 @@ echo "Running with $PREFIX $REFERENCE $HOLD_ID"
 USEGRID=`cat ${SCRIPT_PATH}/CONFIG |grep -v "#" |grep USEGRID |awk '{print $NF}'`
 if [ $USEGRID -eq 1 ]; then
    if [ $# -ge 4 ] && [ x$4 != "x" ]; then
-      qsub -V -pe make-dedicated 8 -l mem_free=4G -t 1-$NUM_JOBS -hold_jid $4 -cwd -N "${PREFIX}align" -j y -o `pwd`/\$TASK_ID.out $SCRIPT_PATH/filterAndAlign.sh
+      qsub -V -pe thread 8 -tc 50 -l mem_free=5G -t 1-$NUM_JOBS -hold_jid $4 -cwd -N "${PREFIX}align" -j y -o `pwd`/\$TASK_ID.out $SCRIPT_PATH/filterAndAlign.sh
    else
-      qsub -V -pe make-dedicated 8 -l mem_free=4G -t 1-$NUM_JOBS -cwd -N "${PREFIX}align" -j y -o `pwd`/\$TASK_ID.out $SCRIPT_PATH/filterAndAlign.sh
+      qsub -V -pe thread 8 -tc 50 -l mem_free=5G -t 1-$NUM_JOBS -cwd -N "${PREFIX}align" -j y -o `pwd`/\$TASK_ID.out $SCRIPT_PATH/filterAndAlign.sh
    fi
-   qsub -V -pe make-dedicated 1 -l mem_free=5G -hold_jid "${PREFIX}align" -t 1-$NUM_JOBS -cwd -N "${PREFIX}split" -j y -o `pwd`/\$TASK_ID.split.out $SCRIPT_PATH/splitByContig.sh
-   qsub -V -pe make-dedicated 8 -l mem_free=4G -t 1-$NUM_JOBS -hold_jid "${PREFIX}split" -cwd -N "${PREFIX}cns" -j y -o `pwd`/\$TASK_ID.cns.out $SCRIPT_PATH/consensus.sh
+   qsub -V -pe thread 1 -l mem_free=5G -tc 400 -hold_jid "${PREFIX}align" -t 1-$NUM_JOBS -cwd -N "${PREFIX}split" -j y -o `pwd`/\$TASK_ID.split.out $SCRIPT_PATH/splitByContig.sh
+   qsub -V -pe thread 1 -l mem_free=5G -tc 400 -hold_jid "${PREFIX}align" -t 1-$NUM_JOBS -cwd -N "${PREFIX}cov" -j y -o `pwd`/\$TASK_ID.cov.out $SCRIPT_PATH/coverage.sh
+   qsub -V -pe thread 8 -l mem_free=5G -tc 50 -t 1-$NUM_JOBS -hold_jid "${PREFIX}split" -cwd -N "${PREFIX}cns" -j y -o `pwd`/\$TASK_ID.cns.out $SCRIPT_PATH/consensus.sh
 else
    for i in `seq 1 $NUM_JOBS`; do
       sh $SCRIPT_PATH/filterAndAlign.sh $i
    done
    for i in `seq 1 $NUM_JOBS`; do
       sh $SCRIPT_PATH/splitByContig.sh $i
+   done
+   for i in `seq 1 $NUM_JOBS`; do
+      sh $SCRIPT_PATH/coverage.sh $i
    done
    for i in `seq 1 $NUM_JOBS`; do
       sh $SCRIPT_PATH/consensus.sh $i
