@@ -8,14 +8,12 @@ To run the pipeline you need to:
 
 1. You must have a working SMRT Analysis Software installation and have it configured so the SEYMOUR_HOME environment variable points to the installation and the pipeline binaries are in your path. 
 
-2. Import your assembled fasta file into smrtportal as a reference (say named human_asm)
-
 2. Create the input.fofn file which lists the SMRTcells you want to use for Quiver (the full path excluding .[1-3].bax.h5), it will treat each collection of bax.h5 files as a single SMRTcell.
 
-3. run the pipeline specifying the input file, the path to the reference, and a prefix for the outputs:
+3. run the pipeline specifying the input file, the path to the reference fasta, and a prefix for the outputs:
 
 ```
-sh quiver.sh input.fofn trio3 /path/to/smrtanalysis/userdata/references/human_asm
+sh quiver.sh input.fofn trio3 trio3.contigs.fasta "H. sapiens"
 ```
 
 The pipeline is very rough and has undergone limited testing so user beware.

@@ -48,46 +48,20 @@ JAVA_PATH=$SCRIPT_PATH:.
 FOFN=$1
 PREFIX=$2
 REFERENCE=$3
+ORG=$4
 
 NUM_JOBS=`wc -l $FOFN |awk '{print $1}'`
 
-# now split the contigs
-reference=$REFERENCE
-numContigs=`cat $reference/reference.info.xml |grep "<contig length" |awk -F "id=" '{print $2}'|awk '{print $1}' |sed s/\"//g |wc -l |awk '{print $1}'`
-numPerBatch=`echo "$numContigs $NUM_JOBS" |awk '{printf("%d\n", ($1/$2)+1)}'`
-echo "Num contigs $numContigs ($numPerBatch) for $NUM_JOBS $reference"
-
-count=1
-set -f
-IFS='
-'
-for list in `cat $reference/reference.info.xml |grep "<contig length" |awk -F "id=" '{print $2}'|awk '{print $1}' |sed s/\"//g | xargs -n $numPerBatch`; do
-   `echo $list | tr ' ' '\n' > $PREFIX.$count.contig_ids`
-   count=$((count + 1))
-done
-
-unset IFS
-set +f
-
-> $PREFIX.bax.fofn
-for input in `cat $FOFN |awk '{print $1}'`; do
-   `find $input*.bax.h5 >> $PREFIX.bax.fofn`
-done
-
-> $PREFIX.cmph5.fofn
-for jobid in `seq 1 $NUM_JOBS`; do
-   echo "$PREFIX.$jobid.cmp.h5" >> $PREFIX.cmph5.fofn
-done
-
 VARIANTPARAMS=`cat ${SCRIPT_PATH}/CONFIG |grep -v "#" |grep  SMRTPORTAL |tail -n 1 |awk '{print $2}'`
+echo "$FOFN" > fofn
 echo "$PREFIX" > prefix
-echo "$REFERENCE" > reference
+echo "$REFERENCE" > asm
 echo "$SCRIPT_PATH" > scripts
 echo "$SEYMOUR_HOME/$VARIANTPARAMS" > smrtparams
+echo "$ORG" > organism
 
-
-if [ $# -ge 5 ]; then
-   fileName=`readlink -e $5` 
+if [ $# -ge 6 ]; then
+   fileName=`readlink -e $6` 
    echo ",ReadWhitelist=$fileName" > whitelist
 else
    echo "" > whitelist
@@ -96,15 +70,18 @@ fi
 echo "Running with $PREFIX $REFERENCE $HOLD_ID"
 USEGRID=`cat ${SCRIPT_PATH}/CONFIG |grep -v "#" |grep USEGRID |awk '{print $NF}'`
 if [ $USEGRID -eq 1 ]; then
-   if [ $# -ge 4 ] && [ x$4 != "x" ]; then
-      qsub -V -pe thread 8 -tc 50 -l mem_free=5G -t 1-$NUM_JOBS -hold_jid $4 -cwd -N "${PREFIX}align" -j y -o `pwd`/\$TASK_ID.out $SCRIPT_PATH/filterAndAlign.sh
+   if [ $# -ge 5 ] && [ x$5 != "x" ]; then
+      qsub -V -pe thread 8 -l mem_free=5G -cwd -N "${PREFIX}add" -hold_jid $5 -j y -o `pwd`/add.out $SCRIPT_PATH/add.sh
    else
-      qsub -V -pe thread 8 -tc 50 -l mem_free=5G -t 1-$NUM_JOBS -cwd -N "${PREFIX}align" -j y -o `pwd`/\$TASK_ID.out $SCRIPT_PATH/filterAndAlign.sh
+      qsub -V -pe thread 8 -l mem_free=5G -cwd -N "${PREFIX}add" -j y -o `pwd`/add.out $SCRIPT_PATH/add.sh
    fi
+   qsub -V -pe thread 8 -tc 50 -l mem_free=5G -t 1-$NUM_JOBS -hold_jid ${PREFIX}add -cwd -N "${PREFIX}align" -j y -o `pwd`/\$TASK_ID.out $SCRIPT_PATH/filterAndAlign.sh
    qsub -V -pe thread 1 -l mem_free=5G -tc 400 -hold_jid "${PREFIX}align" -t 1-$NUM_JOBS -cwd -N "${PREFIX}split" -j y -o `pwd`/\$TASK_ID.split.out $SCRIPT_PATH/splitByContig.sh
    qsub -V -pe thread 1 -l mem_free=5G -tc 400 -hold_jid "${PREFIX}split" -t 1-$NUM_JOBS -cwd -N "${PREFIX}cov" -j y -o `pwd`/\$TASK_ID.cov.out $SCRIPT_PATH/coverage.sh
    qsub -V -pe thread 8 -l mem_free=5G -tc 50 -t 1-$NUM_JOBS -hold_jid "${PREFIX}split" -cwd -N "${PREFIX}cns" -j y -o `pwd`/\$TASK_ID.cns.out $SCRIPT_PATH/consensus.sh
+   qsub -V -pe thread 8 -l mem_free=5G -cwd -N "${PREFIX}rm" -hold_jid "${PREFIX}cns" -j y -o `pwd`/remove.out $SCRIPT_PATH/remove.sh
 else
+   sh $SCRIPT_PATH/add.sh
    for i in `seq 1 $NUM_JOBS`; do
       sh $SCRIPT_PATH/filterAndAlign.sh $i
    done
@@ -117,4 +94,5 @@ else
    for i in `seq 1 $NUM_JOBS`; do
       sh $SCRIPT_PATH/consensus.sh $i
    done
+   sh $SCRIPT_PATH/remove.sh
 fi
