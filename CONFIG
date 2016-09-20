@@ -1,4 +1,4 @@
-SMRTPORTAL analysis/etc/algorithm_parameters/2014-09/
+SMRTPORTAL analysis/etc/algorithm_parameters/2015-11/
 LD_LIBRARY_PATH 
 USEGRID 1
 GRIDENGINE SGE
