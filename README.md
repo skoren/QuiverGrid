@@ -2,6 +2,8 @@
 
 The distribution is a parallel wrapper around the [Quiver](http://github.com/PacificBiosciences/GenomicConsensus/blob/master/doc/QuiverFAQ.rst) consensus framework within the [SMRT Analysis Software](http://github.com/PacificBiosciences/SMRT-Analysis). The pipeline is composed of bash scripts, an example input fofn which shows how to input your bax.h5 files (you give paths without the .1.bax.h5), and how to launch the pipeline. 
 
+The pipeline only support Quiver and SMRTportal 2.3 or earlier. If you have RSII P6-C4 (or newer) or Sequel data, you can use the [ArrowGrid](https://github.com/skoren/ArrowGrid) pipeline instead. This one is no longer being updated.
+
 The current pipeline has been designed to run on the SGE scheduling system and has hard-coded grid resource request parameters. You must edit quiver.sh to match your grid options. It is, in principle, possible to run on other grid engines but will require editing all shell scripts to not use SGE_TASK_ID but the appropriate variable for your grid environment and editing the qsub commands in quiver.sh to the appropriate commands for your grid environment.
 
 To run the pipeline you need to:
@@ -18,7 +20,8 @@ sh quiver.sh input.fofn trio3 trio3.contigs.fasta "H. sapiens"
 
 The pipeline is very rough and has undergone limited testing so user beware.
 
-######CITE
+###### CITE
+
 If you find this pipeline useful, please cite the original Quiver paper:<br>
 Chin et. al. [Nonhybrid, finished microbial genome assemblies from long-read SMRT sequencing data.](http://www.nature.com/nmeth/journal/v10/n6/full/nmeth.2474.html) Nature Methods, 2013
 
